@@ -26,10 +26,12 @@ import requests
 import issues
 import config
 import comments
+import database_helper
 
 from lottery import Lottery
 
 def main():
+    database_helper.init_database()
     lottery = Lottery()
     if not lottery.read_config():
         print("Can't init script, exiting now")

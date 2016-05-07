@@ -20,6 +20,7 @@
 
 import requests
 import re
+import database_helper
 
 cached_responses = {}
 
@@ -36,13 +37,19 @@ def cache_response(response, uri=''):
         remove_response_from_cache(uri)
         return
     cached_responses[uri] = response
+    database_helper.cache_response(uri, response)
 
 def caching_request_headers(uri):
-    return {'If-None-Match': cached_responses[uri].headers['ETag']} if uri in cached_responses else {}
+    # return {'If-None-Match': cached_responses[uri].headers['ETag']} if uri in cached_responses else {}
+    result = database_helper.get_cached_response(uri)
+    return {'If-None-Match': result.headers['ETag']} if result is not None else {}
 
 def cached_response(uri):
-    return cached_responses[uri] if uri in cached_responses else None
+    # return cached_responses[uri] if uri in cached_responses else None
+    result = database_helper.get_cached_response(uri)
+    return result if not None else None
 
 def remove_response_from_cache(uri):
     if uri in cached_responses:
         del cached_responses[uri]
+        database_helper.remove_response(uri)

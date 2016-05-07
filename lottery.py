@@ -22,6 +22,7 @@ import config
 import teams
 import repositories
 import lottery_modes
+import database_helper
 
 class Lottery(object):
     def __init__(self):
@@ -43,6 +44,7 @@ class Lottery(object):
         if reviewer not in self._reviewers:
             return
         self._reviewers[reviewer] += 1
+        database_helper.update_user_rating(reviewer)
 
     def read_config(self):
         if config.lottery_mode == 'random':
