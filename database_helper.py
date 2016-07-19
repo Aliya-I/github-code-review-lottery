@@ -90,12 +90,3 @@ def get_user_score(user):
     conn.commit()
     conn.close()
     return result
-
-
-def select_user_with_min_score(users):
-    conn = sqlite3.connect('lottery.sqlite')
-    cur = conn.cursor()
-
-    cur.execute('''SELECT name, MIN(reviewer_rate) FROM users WHERE name IN ?''', (users,))
-    conn.commit()
-    conn.close()
