@@ -26,24 +26,23 @@ import database_helper
 
 class Lottery(object):
     def __init__(self):
-        self._reviewers = {}
         self._reviewers_by_teams = {}
         self._ubers_by_teams = {}
         self._reviewer_selector = None
 
     def select_assignee(self, issue, team_name):
-        selected = self._reviewer_selector(dict(map(lambda r: (r, self._reviewers[r] if r in self._reviewers else 0),
+        selected = self._reviewer_selector(dict(map(lambda x: (x, database_helper.get_user_score(x)),
                                                     self._reviewers_by_teams[team_name])),
                                            self._ubers_by_teams[team_name], issue)
         if selected is None:
             selected = issue.author
         issue.assignee = selected
-        self._reviewers[issue.assignee] += 1
+        database_helper.update_user_rating(selected)
+
 
     def increase_reviewer_score(self, reviewer):
-        if reviewer not in self._reviewers:
+        if reviewer not in self._reviewers_by_teams:
             return
-        self._reviewers[reviewer] += 1
         database_helper.update_user_rating(reviewer)
 
     def read_config(self):
@@ -66,7 +65,6 @@ class Lottery(object):
             if team_id is None:
                 return False
             self._reviewers_by_teams[team_name] = list(teams.team_members(team_id))
-            self._reviewers.update({reviewer: 0 for reviewer in self._reviewers_by_teams[team_name]})
             self._ubers_by_teams[team_name] = list(filter(lambda u: u in self._reviewers_by_teams[team_name], full_uber_team))
             repositories_list.extend(list(teams.team_repositories(team_id)))
 

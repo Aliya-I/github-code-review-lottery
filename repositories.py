@@ -51,9 +51,10 @@ class Repository(object):
             utils.remove_response_from_cache(uri)
             self._teams = []
             return
-        if r.status_code == 200:
-            utils.cache_response(r)
-            self._teams = list(map(lambda r: r['name'], json.loads(r.text)))
+        if r.status_code == 304:
+            r = utils.cached_response(uri)
+        utils.cache_response(r)
+        self._teams = list(map(lambda r: r['name'], json.loads(r.text)))
 
 def init_repository(repository):
     try:

@@ -50,7 +50,7 @@ def team_members(team_id):
         if r.status_code == 304:
             r = utils.cached_response(uri)
         if r.status_code != 200:
-            print('Something went wrong. API response code: ', r.status_code)
+            print('Unable to find team members by team ID. API response code: ', r.status_code)
             return None
         utils.cache_response(r)
         all_users += json.loads(r.text)
@@ -67,7 +67,7 @@ def team_repositories(team_id):
         if r.status_code == 304:
             r = utils.cached_response(uri)
         if r.status_code != 200:
-            print('Something went wrong. API response code: ', r.status_code)
+            print('Unable to find team repositories by name. API response code: ', r.status_code)
             return None
         utils.cache_response(r)
         all_repos += json.loads(r.text)

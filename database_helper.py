@@ -5,35 +5,20 @@ import pickle
 
 
 def init_database():
-    init_users_table()
-    init_cache()
-
-
-def init_users_table():
     conn = sqlite3.connect('lottery.sqlite')
     cur = conn.cursor()
 
-    cur.execute('''
-    CREATE TABLE IF NOT EXISTS rating (
-        id     INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        name   TEXT UNIQUE,
-        rate   INTEGER DEFAULT 0
-    )
-    ''')
-    conn.commit()
-    conn.close()
-
-
-def init_cache():
-    conn = sqlite3.connect('lottery.sqlite')
-    cur = conn.cursor()
-
-    cur.execute('''
+    cur.executescript('''
+    CREATE TABLE IF NOT EXISTS users (
+        id              INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        name            TEXT UNIQUE,
+        reviewer_rate   INTEGER DEFAULT 0
+    );
     CREATE TABLE IF NOT EXISTS cache (
         id       INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
         url      TEXT,
         response BLOB
-    )
+    );
     ''')
     conn.commit()
     conn.close()
@@ -43,10 +28,12 @@ def update_user_rating(user):
     conn = sqlite3.connect('lottery.sqlite')
     cur = conn.cursor()
 
-    cur.execute('''UPDATE rating SET rate = rate + 1  WHERE name = ?''', (user,))
+    cur.execute('''UPDATE users SET reviewer_rate = reviewer_rate + 1  WHERE name = ?''', (user,))
+    print("User's rating updated: ", user)
 
     if cur.rowcount == 0:  # there is no such user in db
-        cur.execute('''INSERT INTO rating (name, rate) VALUES ( ?, ? )''', (user, 1))
+        cur.execute('''INSERT INTO users (name, reviewer_rate) VALUES ( ?, ? )''', (user, 1))
+        print ('User added to db: ', user)
 
     conn.commit()
     conn.close()
@@ -66,7 +53,7 @@ def cache_response(url, etag):
     conn.close()
 
 
-def get_cached_response(url):
+def fetch_cached_response(url):
     conn = sqlite3.connect('lottery.sqlite')
     cur = conn.cursor()
 
@@ -76,16 +63,39 @@ def get_cached_response(url):
 
     conn.commit()
     conn.close()
-
     return result
 
 
 def remove_response(url):
-    init_cache()
-
     conn = sqlite3.connect('lottery.sqlite')
     cur = conn.cursor()
 
     cur.execute('''DELETE FROM cache WHERE url = ?''', (url,))
+    conn.commit()
+    conn.close()
+
+def get_user_score(user):
+    conn = sqlite3.connect('lottery.sqlite')
+    cur = conn.cursor()
+
+    cur.execute('''SELECT reviewer_rate FROM users WHERE name = ?''', (user,))
+    result = cur.fetchone()
+
+    if result is not None:
+        result = result[0]
+    else:
+        cur.execute('''INSERT INTO users (name, reviewer_rate) VALUES ( ?, ? )''', (user, 0))
+        result = 0
+
+    conn.commit()
+    conn.close()
+    return result
+
+
+def select_user_with_min_score(users):
+    conn = sqlite3.connect('lottery.sqlite')
+    cur = conn.cursor()
+
+    cur.execute('''SELECT name, MIN(reviewer_rate) FROM users WHERE name IN ?''', (users,))
     conn.commit()
     conn.close()
