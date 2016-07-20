@@ -61,7 +61,7 @@ def select_reviewer_by_repo_stats(reviewers, ubers, issue):
     if r.status_code == 200:
         utils.cache_response(r)
     elif r.status_code == 304:
-        r = utils.cached_response(uri)
+        r = utils.fetch_cached_response(uri)
     if r.status_code != 200:
         return select_reviewer_by_random(reviewers, ubers, issue)
 

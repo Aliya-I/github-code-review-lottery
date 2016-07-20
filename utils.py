@@ -41,9 +41,9 @@ def caching_request_headers(uri):
     result = database_helper.fetch_cached_response(uri)
     return {'If-None-Match': result.headers['ETag']} if result is not None else {}
 
-def cached_response(uri):
+def fetch_cached_response(uri):
     result = database_helper.fetch_cached_response(uri)
-    return result if not None else None
+    return result if result is not None else None
 
 def remove_response_from_cache(uri):
         database_helper.remove_response(uri)

@@ -30,7 +30,7 @@ def find_team_by_name(team_name):
     while uri is not None:
         r = requests.get(uri, auth = (config.api_token, 'x-oauth-basic'), headers = utils.caching_request_headers(uri))
         if r.status_code == 304:
-            r = utils.cached_response(uri)
+            r = utils.fetch_cached_response(uri)
         if r.status_code != 200:
             print('Unable to find team by name. API response code: ', r.status_code)
             return None
@@ -48,7 +48,7 @@ def team_members(team_id):
     while uri is not None:
         r = requests.get(uri, auth = (config.api_token, 'x-oauth-basic'), headers = utils.caching_request_headers(uri))
         if r.status_code == 304:
-            r = utils.cached_response(uri)
+            r = utils.fetch_cached_response(uri)
         if r.status_code != 200:
             print('Unable to find team members by team ID. API response code: ', r.status_code)
             return None
@@ -65,7 +65,7 @@ def team_repositories(team_id):
     while uri is not None:
         r = requests.get(uri, auth = (config.api_token, 'x-oauth-basic'), headers = utils.caching_request_headers(uri))
         if r.status_code == 304:
-            r = utils.cached_response(uri)
+            r = utils.fetch_cached_response(uri)
         if r.status_code != 200:
             print('Unable to find team repositories by name. API response code: ', r.status_code)
             return None

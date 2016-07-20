@@ -31,19 +31,23 @@ class Lottery(object):
         self._reviewer_selector = None
 
     def select_assignee(self, issue, team_name):
-        selected = self._reviewer_selector(dict(map(lambda x: (x, database_helper.get_user_score(x)),
+        selected = self._reviewer_selector(dict(map(lambda x: (x, database_helper.fetch_user_score(x)),
                                                     self._reviewers_by_teams[team_name])),
                                            self._ubers_by_teams[team_name], issue)
         if selected is None:
             selected = issue.author
         issue.assignee = selected
-        database_helper.update_user_rating(selected)
+        self.increase_reviewer_score(selected)
 
 
     def increase_reviewer_score(self, reviewer):
-        if reviewer not in self._reviewers_by_teams:
-            return
-        database_helper.update_user_rating(reviewer)
+        for key in self._reviewers_by_teams:
+            for item in self._reviewers_by_teams[key]:
+                if item == reviewer:
+                    database_helper.increment_user_rating(reviewer)
+                break
+            break
+
 
     def read_config(self):
         if config.lottery_mode == 'random':
@@ -76,3 +80,4 @@ class Lottery(object):
         print('Reviewers:', self._reviewers_by_teams)
         print('Ubers:', self._ubers_by_teams)
         return True
+

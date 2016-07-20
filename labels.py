@@ -30,7 +30,7 @@ def create_labels_if_needed(repository):
     while labels_uri is not None:
         r = requests.get(labels_uri, auth = (config.api_token, 'x-oauth-basic'), headers = utils.caching_request_headers(labels_uri))
         if r.status_code == 304:
-            r = utils.cached_response(labels_uri)
+            r = utils.fetch_cached_response(labels_uri)
         if r.status_code != 200:
             print('Something went wrong', r.status_code)
             return False

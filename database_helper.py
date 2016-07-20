@@ -24,7 +24,7 @@ def init_database():
     conn.close()
 
 
-def update_user_rating(user):
+def increment_user_rating(user):
     conn = sqlite3.connect('lottery.sqlite')
     cur = conn.cursor()
 
@@ -74,19 +74,15 @@ def remove_response(url):
     conn.commit()
     conn.close()
 
-def get_user_score(user):
+def fetch_user_score(user):
     conn = sqlite3.connect('lottery.sqlite')
     cur = conn.cursor()
 
     cur.execute('''SELECT reviewer_rate FROM users WHERE name = ?''', (user,))
     result = cur.fetchone()
-
     if result is not None:
-        result = result[0]
-    else:
-        cur.execute('''INSERT INTO users (name, reviewer_rate) VALUES ( ?, ? )''', (user, 0))
-        result = 0
+        result = int(result[0])
 
     conn.commit()
     conn.close()
-    return result
+    return result if result is not None else 0

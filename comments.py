@@ -34,7 +34,7 @@ def issue_contains_review_done_comment(issue):
     except requests.exceptions.RequestException:
         return False
     if r.status_code == 304:
-        r = utils.cached_response(uri)
+        r = utils.fetch_cached_response(uri)
     if r.status_code == 200:
         utils.cache_response(r)
         for comment in json.loads(r.text):
