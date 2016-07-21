@@ -99,7 +99,7 @@ def fetch_opened_pull_requests():
             return []
         if r.status_code == 200:
             utils.cache_response(r)
-        else:
+        elif r.status_code == 304:
             r = utils.fetch_cached_response(uri)
         if r.status_code != 200:
             print('Could not fetch opened pull requests. Response code: ', r.status_code)

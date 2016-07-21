@@ -58,6 +58,7 @@ def select_reviewer_by_repo_stats(reviewers, ubers, issue):
     print('select_reviewer_by_repo_stats:\r\n', reviewers, 'Uber team: ', ubers, "The issue author:", issue.author)
     uri = GITHUB_API_URI + REPO_CONTRIBUTORS_PATH.format(issue.repository)
     r = requests.get(uri, auth = (config.api_token, 'x-oauth-basic'), headers = utils.caching_request_headers(uri))
+
     if r.status_code == 200:
         utils.cache_response(r)
     elif r.status_code == 304:

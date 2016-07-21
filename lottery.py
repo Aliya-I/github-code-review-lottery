@@ -31,7 +31,7 @@ class Lottery(object):
         self._reviewer_selector = None
 
     def select_assignee(self, issue, team_name):
-        selected = self._reviewer_selector(dict(map(lambda x: (x, database_helper.fetch_user_score(x)),
+        selected = self._reviewer_selector(dict(map(lambda x: (x, database_helper.fetch_user_raiting(x)),
                                                     self._reviewers_by_teams[team_name])),
                                            self._ubers_by_teams[team_name], issue)
         if selected is None:
@@ -42,11 +42,10 @@ class Lottery(object):
 
     def increase_reviewer_score(self, reviewer):
         for key in self._reviewers_by_teams:
-            for item in self._reviewers_by_teams[key]:
-                if item == reviewer:
-                    database_helper.increment_user_rating(reviewer)
+            if reviewer in self._reviewers_by_teams[key]:
+                database_helper.increment_user_rating(reviewer)
                 break
-            break
+
 
 
     def read_config(self):
