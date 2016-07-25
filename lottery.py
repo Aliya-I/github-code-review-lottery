@@ -31,7 +31,7 @@ class Lottery(object):
         self._reviewer_selector = None
 
     def select_assignee(self, issue, team_name):
-        selected = self._reviewer_selector(dict(map(lambda x: (x, database_helper.fetch_user_raiting(x)),
+        selected = self._reviewer_selector(dict(map(lambda x: (x, database_helper.fetch_user_rating(x)),
                                                     self._reviewers_by_teams[team_name])),
                                            self._ubers_by_teams[team_name], issue)
         if selected is None:

@@ -74,7 +74,7 @@ def remove_response(url):
     conn.commit()
     conn.close()
 
-def fetch_user_raiting(user):
+def fetch_user_rating(user):
     conn = sqlite3.connect('lottery.sqlite')
     cur = conn.cursor()
 
