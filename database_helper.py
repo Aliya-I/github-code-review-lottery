@@ -1,11 +1,32 @@
 #!/usr/bin/env python3
+# Copyright (c) 2016 Aliya Iskhakova <iskhakova.alija@gmail.com>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is furnished
+# to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import sqlite3
 import pickle
+import sys
+import os
 
 
 def init_database():
-    conn = sqlite3.connect('lottery.sqlite')
+
+    conn = sqlite3.connect(fetch_database_path())
     cur = conn.cursor()
 
     cur.executescript('''
@@ -25,7 +46,7 @@ def init_database():
 
 
 def increment_user_rating(user):
-    conn = sqlite3.connect('lottery.sqlite')
+    conn = sqlite3.connect(fetch_database_path())
     cur = conn.cursor()
 
     cur.execute('''UPDATE users SET reviewer_rate = reviewer_rate + 1  WHERE name = ?''', (user,))
@@ -40,7 +61,7 @@ def increment_user_rating(user):
 
 
 def cache_response(url, etag):
-    conn = sqlite3.connect('lottery.sqlite')
+    conn = sqlite3.connect(fetch_database_path())
     cur = conn.cursor()
 
     pdata = pickle.dumps(etag, pickle.HIGHEST_PROTOCOL)
@@ -54,7 +75,7 @@ def cache_response(url, etag):
 
 
 def fetch_cached_response(url):
-    conn = sqlite3.connect('lottery.sqlite')
+    conn = sqlite3.connect(fetch_database_path())
     cur = conn.cursor()
 
     cur.execute('''SELECT response FROM cache WHERE url = ?''', (url,))
@@ -67,7 +88,7 @@ def fetch_cached_response(url):
 
 
 def remove_response(url):
-    conn = sqlite3.connect('lottery.sqlite')
+    conn = sqlite3.connect(fetch_database_path())
     cur = conn.cursor()
 
     cur.execute('''DELETE FROM cache WHERE url = ?''', (url,))
@@ -75,7 +96,7 @@ def remove_response(url):
     conn.close()
 
 def fetch_user_rating(user):
-    conn = sqlite3.connect('lottery.sqlite')
+    conn = sqlite3.connect(fetch_database_path())
     cur = conn.cursor()
 
     cur.execute('''SELECT reviewer_rate FROM users WHERE name = ?''', (user,))
@@ -86,3 +107,13 @@ def fetch_user_rating(user):
     conn.commit()
     conn.close()
     return result if result is not None else 0
+
+def fetch_database_path():
+    project_path = sys.path[0]
+    db_folder = project_path  + '/data'
+
+    if not os.path.exists(db_folder):
+        os.makedirs(db_folder)
+    db_path = db_folder + '/lottery.sqlite'
+
+    return db_path
